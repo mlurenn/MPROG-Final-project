@@ -16,11 +16,11 @@ data class Task(
 enum class TaskStatus{
     TODO,
     IN_PROGRESS,
-    DONE
+    DONE,
 }
 
 enum class TaskCategory{
     EXAM,
     ASSIGNMENT,
-    LECTURE
+    LECTURE,
 }
