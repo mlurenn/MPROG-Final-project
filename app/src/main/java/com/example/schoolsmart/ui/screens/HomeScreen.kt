@@ -36,6 +36,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +47,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.schoolsmart.data.TaskDatabase
+import com.example.schoolsmart.data.TaskViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
 
 class HomeScreen : ComponentActivity() {
@@ -91,8 +100,9 @@ fun sampleTasks(): List<Task> {
 @Composable
 fun TasksScreen(){
     val context = LocalContext.current
+    val viewModel: TaskViewModel = viewModel()
+    val tasks by viewModel.tasks.collectAsState()
 
-    var tasks by remember { mutableStateOf(sampleTasks()) }
 
     val sortedTasks = tasks.sortedBy { it.dueDate }
     val todoTasks = sortedTasks.filter { it.status == TaskStatus.TODO }
@@ -267,7 +277,7 @@ fun TasksScreen(){
                             reminderEnabled = reminderEnabled,
                         )
 
-                        tasks = tasks + newTask
+                        viewModel.addTask(newTask)
 
                         title = ""
                         description = ""

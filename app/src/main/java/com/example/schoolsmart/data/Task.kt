@@ -1,7 +1,14 @@
 package com.example.schoolsmart.data
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+
+@Entity(tableName = "tasks")
+@TypeConverters(Converters::class)
 data class Task(
-    val id: String,
+
+    @PrimaryKey val id: String,
     val title: String,
     val description: String,
     val dueDate: Long,
