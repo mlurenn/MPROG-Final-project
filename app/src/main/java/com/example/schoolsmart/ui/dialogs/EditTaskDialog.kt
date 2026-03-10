@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.schoolsmart.data.Task
 import com.example.schoolsmart.data.TaskCategory
+import com.example.schoolsmart.data.TaskStatus
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -42,6 +43,7 @@ fun EditTaskDialog(
     description: String,
     dueDate: Long,
     selectedCategory: String,
+    selectedStatus: String,
     smsEnabled: Boolean,
     reminderEnabled: Boolean,
 
@@ -49,6 +51,7 @@ fun EditTaskDialog(
     onDescriptionChange: (String) -> Unit,
     onDateChange: (Long) -> Unit,
     onCategoryClick: (TaskCategory) -> Unit,
+    onStatusClick: (TaskStatus) -> Unit,
 
     onSmsChange: (Boolean) -> Unit,
     onReminderChange: (Boolean) -> Unit,
@@ -59,7 +62,8 @@ fun EditTaskDialog(
 ){
     val context = LocalContext.current
     val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    var isExpanded by remember { mutableStateOf(false) }
+    var categoryExpanded by remember { mutableStateOf(false) }
+    var statusExpanded by remember { mutableStateOf(false) }
 
     var links by remember { mutableStateOf(task.links)}
     var newLink by remember(task) { mutableStateOf("")}
@@ -117,27 +121,28 @@ fun EditTaskDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Category
+                // Category & Status
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Category
                     Text("Category")
                     Spacer(modifier = Modifier.width(8.dp))
                     Box {
-                        Button(onClick = { isExpanded = true }) {
-                            Text(selectedCategory.toString())
+                        Button(onClick = { categoryExpanded = true }) {
+                            Text(selectedCategory)
                         }
 
                         DropdownMenu(
-                            expanded = isExpanded,
-                            onDismissRequest = { isExpanded = false }
+                            expanded = categoryExpanded,
+                            onDismissRequest = { categoryExpanded = false }
                         ) {
 
                             DropdownMenuItem(
                                 text = { Text("Lecture") },
                                 onClick = {
                                     onCategoryClick(TaskCategory.LECTURE)
-                                    isExpanded = false
+                                    categoryExpanded = false
                                 }
                             )
 
@@ -145,7 +150,7 @@ fun EditTaskDialog(
                                 text = { Text("Assignment") },
                                 onClick = {
                                     onCategoryClick(TaskCategory.ASSIGNMENT)
-                                    isExpanded = false
+                                    categoryExpanded = false
                                 }
                             )
 
@@ -153,7 +158,53 @@ fun EditTaskDialog(
                                 text = { Text("Exam") },
                                 onClick = {
                                     onCategoryClick(TaskCategory.EXAM)
-                                    isExpanded = false
+                                    categoryExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // Status
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Status")
+                    Spacer(modifier = Modifier.width(24.dp))
+
+                    Box {
+                        Button(onClick = { statusExpanded = true }) {
+                            Text(selectedStatus.replace("_", " "))
+                        }
+
+                        DropdownMenu(
+                            expanded = statusExpanded,
+                            onDismissRequest = { statusExpanded = false }
+                        ) {
+
+                            DropdownMenuItem(
+                                text = { Text("To-Do") },
+                                onClick = {
+                                    onStatusClick(TaskStatus.TODO)
+                                    statusExpanded = false
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text("In progress") },
+                                onClick = {
+                                    onStatusClick(TaskStatus.IN_PROGRESS)
+                                    statusExpanded = false
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text("Done") },
+                                onClick = {
+                                    onStatusClick(TaskStatus.DONE)
+                                    statusExpanded = false
                                 }
                             )
                         }
