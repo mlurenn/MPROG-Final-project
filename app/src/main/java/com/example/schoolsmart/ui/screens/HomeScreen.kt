@@ -170,8 +170,9 @@ fun TasksScreen(){
                     smsEnabled = false
                     reminderEnabled = false
                     showDialog = false
+
+                    Toast.makeText(context, "Task added", Toast.LENGTH_SHORT).show()
                 })
-            Toast.makeText(context, "Task added", Toast.LENGTH_SHORT).show()
         }
 
         // Edit Task Dialog

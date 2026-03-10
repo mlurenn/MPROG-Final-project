@@ -60,7 +60,7 @@ fun EditTaskDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
 
-        title = { Text("Create new task") },
+        title = { Text("Task Overview") },
 
         text = {
             Column {
@@ -180,7 +180,7 @@ fun EditTaskDialog(
                 }
                 onConfirm()
             }) {
-                Text("Add")
+                Text("Done")
             }
         },
 
