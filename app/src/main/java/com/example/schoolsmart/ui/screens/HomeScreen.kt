@@ -59,6 +59,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import com.example.schoolsmart.ui.components.TaskCard
+import com.example.schoolsmart.ui.components.TaskList
+import com.example.schoolsmart.ui.dialogs.AddTaskDialog
 
 class HomeScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,7 +122,7 @@ fun TasksScreen(){
     var description by remember { mutableStateOf("") }
     var dueDate by remember { mutableStateOf(System.currentTimeMillis()) }
 
-    val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
 
     var editingTask by remember { mutableStateOf<Task?>(null) }
 
@@ -182,205 +185,45 @@ fun TasksScreen(){
         var smsEnabled by remember { mutableStateOf(false) }
         var reminderEnabled by remember { mutableStateOf(false) }
 
+        // Add Task Dialog
+        if(showDialog) {
+            AddTaskDialog(
+                title = title,
+                description = description,
+                dueDate = dueDate,
+                selectedCategory = selectedCategory.toString(),
+                smsEnabled = smsEnabled,
+                reminderEnabled = reminderEnabled,
 
-        //Add task Dialog
-        if(showDialog){
-            AlertDialog(
-                onDismissRequest = {showDialog = false},
+                onTitleChange = { title = it },
+                onDescriptionChange = { description = it },
+                onDateChange = { dueDate = it },
+                onCategoryClick = { selectedCategory = it },
 
-                title = { Text("Create new task") },
+                onSmsChange = { smsEnabled = it },
+                onReminderChange = { reminderEnabled = it },
 
-                text = {
-                    Column {
-                        OutlinedTextField(
-                            value = title,
-                            onValueChange = { title = it },
-                            label = { Text("Title") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                onDismiss = { showDialog = false },
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                onConfirm = {
+                    val newTask = addTask(
+                        title = title,
+                        desc = description,
+                        dueDate = dueDate,
+                        category = selectedCategory,
+                        smsEnabled = smsEnabled,
+                        reminderEnabled = reminderEnabled,
+                    )
+                    viewModel.addTask(newTask)
 
-                        OutlinedTextField(
-                            value = description,
-                            onValueChange = { description = it },
-                            label = { Text("Description") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Due date")
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Button(onClick = {
-                                val calendar = java.util.Calendar.getInstance()
-                                calendar.timeInMillis = dueDate
-
-                                android.app.DatePickerDialog(
-                                    context, { _, year, month, dayOfMonth ->
-                                        val newCalendar = java.util.Calendar.getInstance()
-                                        newCalendar.set(year, month, dayOfMonth)
-                                        dueDate = newCalendar.timeInMillis
-                                    },
-                                    calendar.get(java.util.Calendar.YEAR),
-                                    calendar.get(java.util.Calendar.MONTH),
-                                    calendar.get(java.util.Calendar.DAY_OF_MONTH)
-                                ).show()
-                            }) {
-                                Text(dateFormatter.format(Date(dueDate)))
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Category")
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Box {
-                                Button(onClick = { isExpanded = true }) {
-                                    Text(selectedCategory.toString())
-                                }
-
-                                DropdownMenu(
-                                    expanded = isExpanded,
-                                    onDismissRequest = { isExpanded = false }
-                                ) {
-
-                                    DropdownMenuItem(
-                                        text = { Text("Lecture") },
-                                        onClick = {
-                                            selectedCategory = TaskCategory.LECTURE
-                                            isExpanded = false
-                                        }
-                                    )
-
-                                    DropdownMenuItem(
-                                        text = { Text("Assignment") },
-                                        onClick = {
-                                            selectedCategory = TaskCategory.ASSIGNMENT
-                                            isExpanded = false
-                                        }
-                                    )
-
-                                    DropdownMenuItem(
-                                        text = { Text("Exam") },
-                                        onClick = {
-                                            selectedCategory = TaskCategory.EXAM
-                                            isExpanded = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(
-                                checked = smsEnabled,
-                                onCheckedChange = { smsEnabled = it }
-                            )
-                            Text("Enable SMS reminder")
-                        }
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(
-                                checked = reminderEnabled,
-                                onCheckedChange = { reminderEnabled = it }
-                            )
-                            Text("Enable notification reminder")
-                        }
-                    }
-                },
-
-                confirmButton = {
-                    TextButton(onClick = {
-                        if (title.isBlank()) {
-                            Toast.makeText(context, "Title cannot be empty", Toast.LENGTH_SHORT).show()
-                            return@TextButton
-                        }
-
-                        val newTask = addTask(
-                            title = title,
-                            desc = description,
-                            dueDate = dueDate,
-                            category = selectedCategory,
-                            smsEnabled = smsEnabled,
-                            reminderEnabled = reminderEnabled,
-                        )
-
-                        viewModel.addTask(newTask)
-
-                        title = ""
-                        description = ""
-                        smsEnabled = false
-                        reminderEnabled = false
-                        showDialog = false
-
-                        Toast.makeText(context, "Task created", Toast.LENGTH_SHORT).show()
-
-                    }) {
-                        Text("Add")
-                    }
-                },
-
-                dismissButton = {
-                    TextButton(onClick = { showDialog = false }) {
-                        Text("Cancel")
-                    }
-                }
-            )
-        }
-
-        // Edit task Dialog
-    }
-}
-
-// Displays a list of tasks in a scrollable column
-@Composable
-fun TaskList(tasks: List<Task>, modifier: Modifier = Modifier, onTaskClick: (Task) -> Unit) {
-    LazyColumn(modifier = modifier.padding(8.dp)) {
-        items(tasks) { task ->
-            TaskCard(task, onClick = onTaskClick)
-        }
-    }
-}
-
-// Represents a task for the user as a Card
-@Composable
-fun TaskCard(task: Task, onClick: (Task) -> Unit) {
-
-    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    val formattedDate = formatter.format(Date(task.dueDate))
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        onClick = { onClick(task) }
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(text = task.title)
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(text = formattedDate)
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = task.description)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Status: ${task.status}")
+                    title = ""
+                    description = ""
+                    dueDate = System.currentTimeMillis()
+                    selectedCategory = TaskCategory.LECTURE
+                    smsEnabled = false
+                    reminderEnabled = false
+                    showDialog = false
+                })
         }
     }
 }
