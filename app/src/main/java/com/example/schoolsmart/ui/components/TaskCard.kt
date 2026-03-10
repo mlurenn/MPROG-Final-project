@@ -46,7 +46,7 @@ fun TaskCard(task: Task, onClick: (Task) -> Unit) {
             Text(text = task.description)
             Spacer(modifier = Modifier.height(8.dp))
 
-            var displayStatus = task.status.name.replace("_", " ")
+            val displayStatus = task.status.name.replace("_", " ")
 
             Text(text = "Status: $displayStatus")
         }
