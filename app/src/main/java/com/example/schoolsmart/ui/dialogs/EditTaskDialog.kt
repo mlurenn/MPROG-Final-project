@@ -1,5 +1,8 @@
 package com.example.schoolsmart.ui.dialogs
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,11 +60,15 @@ fun EditTaskDialog(
     val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     var isExpanded by remember { mutableStateOf(false) }
 
+    var links by remember { mutableStateOf(task.links)}
+    var newLink by remember(task) { mutableStateOf("")}
+
     AlertDialog(
         onDismissRequest = onDismiss,
 
         title = { Text("Task Overview") },
 
+        // Title & description
         text = {
             Column {
                 OutlinedTextField(
@@ -82,6 +89,7 @@ fun EditTaskDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Due date
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -108,6 +116,7 @@ fun EditTaskDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Category
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -150,6 +159,7 @@ fun EditTaskDialog(
                     }
                 }
 
+                // Reminders
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -169,6 +179,58 @@ fun EditTaskDialog(
                     )
                     Text("Enable notification reminder")
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Links
+                Text("Links")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = newLink,
+                        onValueChange = {newLink = it},
+                        label = { Text("URL") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Button(onClick = {
+                        val trimmedLink = newLink.trim()
+                        if (trimmedLink.isNotEmpty() && !links.contains(trimmedLink)) {
+                            links = links + trimmedLink
+                            task.links = links
+                            newLink = ""
+                        }
+                    }){Text("Add")}
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                if(task.links.isNotEmpty()){
+                    Column{
+                        links.filter { it.isNotBlank() }
+                            .forEach { link ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    TextButton(
+                                        onClick = { openLink(context, link) }
+                                    ) {
+                                        Text(link)
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    TextButton(
+                                        onClick = {
+                                            links = links - link
+                                            task.links = links
+                                        }
+                                    ) {
+                                        Text("Remove")
+                                    }
+                                }
+                            }
+                    }
+                }
             }
         },
 
@@ -183,11 +245,19 @@ fun EditTaskDialog(
                 Text("Done")
             }
         },
-
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
     )
+}
+
+fun openLink(context: Context, url: String){
+
+    var safeUrl = ""
+    if(url.startsWith("https://") || url.startsWith("http://")){
+        safeUrl = url
+    } else{
+        safeUrl = "https://$url"
+    }
+
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.data = Uri.parse(safeUrl)
+    context.startActivity(intent)
 }

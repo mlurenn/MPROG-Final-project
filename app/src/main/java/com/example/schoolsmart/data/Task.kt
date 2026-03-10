@@ -16,7 +16,7 @@ data class Task(
     val category: TaskCategory,
     val smsEnabled: Boolean = false,
     val reminderEnabled: Boolean = false,
-    val links: List<String> = emptyList(),
+    var links: List<String> = emptyList(),
     val pictures: List<String> = emptyList()
 )
 
