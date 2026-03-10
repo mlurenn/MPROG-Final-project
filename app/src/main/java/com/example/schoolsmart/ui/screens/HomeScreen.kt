@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,9 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -28,16 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.example.schoolsmart.data.Task
 import com.example.schoolsmart.data.TaskCategory
 import com.example.schoolsmart.data.TaskStatus
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,17 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.schoolsmart.data.TaskDatabase
 import com.example.schoolsmart.data.TaskViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import java.util.UUID
-import com.example.schoolsmart.ui.components.TaskCard
 import com.example.schoolsmart.ui.components.TaskList
 import com.example.schoolsmart.ui.dialogs.AddTaskDialog
 
@@ -71,36 +49,6 @@ class HomeScreen : ComponentActivity() {
             TasksScreen()
         }
     }
-}
-
-// Dummy Data
-fun sampleTasks(): List<Task> {
-    return listOf(
-        Task(
-            id = "1",
-            title = "Mattelektion",
-            description = "Kapitel 1-3",
-            dueDate = System.currentTimeMillis(),
-            status = TaskStatus.TODO,
-            category = TaskCategory.LECTURE
-        ),
-        Task(
-            id = "2",
-            title = "Historiauppgift",
-            description = "Skriv om WW2",
-            dueDate = System.currentTimeMillis(),
-            status = TaskStatus.IN_PROGRESS,
-            category = TaskCategory.ASSIGNMENT
-        ),
-        Task(
-            id = "3",
-            title = "Kemiexamen",
-            description = "Förbered labbrapporter",
-            dueDate = System.currentTimeMillis(),
-            status = TaskStatus.TODO,
-            category = TaskCategory.EXAM
-        )
-    )
 }
 
 // Displays and filters tasks
@@ -224,6 +172,7 @@ fun TasksScreen(){
                     reminderEnabled = false
                     showDialog = false
                 })
+            Toast.makeText(context, "Task added", Toast.LENGTH_SHORT).show()
         }
     }
 }
