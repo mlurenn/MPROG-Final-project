@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
@@ -54,6 +55,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 class HomeScreen : ComponentActivity() {
@@ -103,7 +107,6 @@ fun TasksScreen(){
     val viewModel: TaskViewModel = viewModel()
     val tasks by viewModel.tasks.collectAsState()
 
-
     val sortedTasks = tasks.sortedBy { it.dueDate }
     val todoTasks = sortedTasks.filter { it.status == TaskStatus.TODO }
     val inProgressTasks = sortedTasks.filter { it.status == TaskStatus.IN_PROGRESS }
@@ -114,6 +117,11 @@ fun TasksScreen(){
     var showDialog by remember { mutableStateOf(false) }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    var dueDate by remember { mutableStateOf(System.currentTimeMillis()) }
+
+    val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+    var editingTask by remember { mutableStateOf<Task?>(null) }
 
     val filteredTasks = when (currentFilter) {
         "todo" -> todoTasks
@@ -155,7 +163,10 @@ fun TasksScreen(){
 
         TaskList(
             tasks = filteredTasks,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            onTaskClick = { task ->
+                editingTask = task
+            }
         )
 
         Row(
@@ -171,6 +182,8 @@ fun TasksScreen(){
         var smsEnabled by remember { mutableStateOf(false) }
         var reminderEnabled by remember { mutableStateOf(false) }
 
+
+        //Add task Dialog
         if(showDialog){
             AlertDialog(
                 onDismissRequest = {showDialog = false},
@@ -195,13 +208,39 @@ fun TasksScreen(){
                             modifier = Modifier.fillMaxWidth()
                         )
 
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Due date")
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(onClick = {
+                                val calendar = java.util.Calendar.getInstance()
+                                calendar.timeInMillis = dueDate
+
+                                android.app.DatePickerDialog(
+                                    context, { _, year, month, dayOfMonth ->
+                                        val newCalendar = java.util.Calendar.getInstance()
+                                        newCalendar.set(year, month, dayOfMonth)
+                                        dueDate = newCalendar.timeInMillis
+                                    },
+                                    calendar.get(java.util.Calendar.YEAR),
+                                    calendar.get(java.util.Calendar.MONTH),
+                                    calendar.get(java.util.Calendar.DAY_OF_MONTH)
+                                ).show()
+                            }) {
+                                Text(dateFormatter.format(Date(dueDate)))
+                            }
+                        }
+
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text("Category")
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
                             Box {
                                 Button(onClick = { isExpanded = true }) {
                                     Text(selectedCategory.toString())
@@ -271,7 +310,7 @@ fun TasksScreen(){
                         val newTask = addTask(
                             title = title,
                             desc = description,
-                            dueDate = System.currentTimeMillis(),
+                            dueDate = dueDate,
                             category = selectedCategory,
                             smsEnabled = smsEnabled,
                             reminderEnabled = reminderEnabled,
@@ -299,29 +338,45 @@ fun TasksScreen(){
                 }
             )
         }
+
+        // Edit task Dialog
     }
 }
 
 // Displays a list of tasks in a scrollable column
 @Composable
-fun TaskList(tasks: List<Task>, modifier: Modifier = Modifier) {
+fun TaskList(tasks: List<Task>, modifier: Modifier = Modifier, onTaskClick: (Task) -> Unit) {
     LazyColumn(modifier = modifier.padding(8.dp)) {
         items(tasks) { task ->
-            TaskCard(task)
+            TaskCard(task, onClick = onTaskClick)
         }
     }
 }
 
 // Represents a task for the user as a Card
 @Composable
-fun TaskCard(task: Task) {
+fun TaskCard(task: Task, onClick: (Task) -> Unit) {
+
+    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val formattedDate = formatter.format(Date(task.dueDate))
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(8.dp),
+        onClick = { onClick(task) }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = task.title)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(text = task.title)
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(text = formattedDate)
+            }
+
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = task.description)
             Spacer(modifier = Modifier.height(8.dp))
