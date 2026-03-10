@@ -40,6 +40,7 @@ import com.example.schoolsmart.data.TaskViewModel
 import java.util.UUID
 import com.example.schoolsmart.ui.components.TaskList
 import com.example.schoolsmart.ui.dialogs.AddTaskDialog
+import com.example.schoolsmart.ui.dialogs.EditTaskDialog
 
 class HomeScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,8 +70,6 @@ fun TasksScreen(){
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var dueDate by remember { mutableStateOf(System.currentTimeMillis()) }
-
-
 
     var editingTask by remember { mutableStateOf<Task?>(null) }
 
@@ -173,6 +172,30 @@ fun TasksScreen(){
                     showDialog = false
                 })
             Toast.makeText(context, "Task added", Toast.LENGTH_SHORT).show()
+        }
+
+        // Edit Task Dialog
+        if (editingTask != null) {
+            EditTaskDialog(
+                task = editingTask!!,
+                title = editingTask!!.title,
+                description = editingTask!!.description,
+                dueDate = editingTask!!.dueDate,
+                selectedCategory = editingTask!!.category.toString(),
+                smsEnabled = editingTask!!.smsEnabled,
+                reminderEnabled = editingTask!!.reminderEnabled,
+                onTitleChange = { editingTask = editingTask!!.copy(title = it) },
+                onDescriptionChange = { editingTask = editingTask!!.copy(description = it) },
+                onDateChange = { editingTask = editingTask!!.copy(dueDate = it) },
+                onCategoryClick = { editingTask = editingTask!!.copy(category = it) },
+                onSmsChange = { editingTask = editingTask!!.copy(smsEnabled = it) },
+                onReminderChange = { editingTask = editingTask!!.copy(reminderEnabled = it) },
+                onConfirm = {
+                    viewModel.updateTask(editingTask!!)
+                    editingTask = null
+                },
+                onDismiss = { editingTask = null }
+            )
         }
     }
 }
