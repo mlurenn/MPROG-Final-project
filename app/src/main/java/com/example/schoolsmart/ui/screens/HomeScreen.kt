@@ -195,7 +195,12 @@ fun TasksScreen(){
                     viewModel.updateTask(editingTask!!)
                     editingTask = null
                 },
-                onDismiss = { editingTask = null }
+                onDismiss = { editingTask = null },
+
+                onDelete = {
+                    viewModel.deleteTask(editingTask!!)
+                    editingTask = null
+                }
             )
         }
     }

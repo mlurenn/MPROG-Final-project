@@ -53,8 +53,9 @@ fun EditTaskDialog(
     onSmsChange: (Boolean) -> Unit,
     onReminderChange: (Boolean) -> Unit,
 
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onConfirm:  () -> Unit,
+    onDismiss:  () -> Unit,
+    onDelete:   () -> Unit
 ){
     val context = LocalContext.current
     val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -243,6 +244,14 @@ fun EditTaskDialog(
                 onConfirm()
             }) {
                 Text("Done")
+            }
+        },
+
+        dismissButton = {
+            TextButton(onClick = {
+                onDelete()
+            }) {
+                Text("DELETE")
             }
         },
     )
