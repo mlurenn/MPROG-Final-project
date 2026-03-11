@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,6 +46,14 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.draw.shadow
 
 class PhotosActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,6 +116,7 @@ fun PhotosScreen(taskID: String, onBack: () -> Unit){
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
+            // Display photos
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -115,14 +125,47 @@ fun PhotosScreen(taskID: String, onBack: () -> Unit){
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                items(imageList) { bitmap ->
-                    Image(
-                        bitmap = bitmap.asImageBitmap(),
-                        contentDescription = "Photo",
+                itemsIndexed(imageList) { index, bitmap ->
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1f)
-                    )
+                    ) {
+                        Card(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Image(
+                                bitmap = bitmap.asImageBitmap(),
+                                contentDescription = "Photo",
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+
+                        // Delete button
+                        IconButton(
+                            onClick = {
+                                val updatedList = imageList.toMutableList()
+                                updatedList.removeAt(index)
+                                imageList = updatedList
+
+                                scope.launch(Dispatchers.IO) {
+                                    val task = database.taskDao().getTaskById(taskID)
+                                    val updatedTask = task.copy(
+                                        pictures = task.pictures.filterIndexed { i, _ -> i != index }
+                                    )
+                                    database.taskDao().updateTask(updatedTask)
+                                }
+                            },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Remove photo"
+                            )
+                        }
+                    }
                 }
             }
 
