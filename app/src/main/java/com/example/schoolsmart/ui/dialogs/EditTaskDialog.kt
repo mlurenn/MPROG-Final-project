@@ -23,16 +23,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsmart.data.Task
 import com.example.schoolsmart.data.TaskCategory
+import com.example.schoolsmart.data.TaskDatabase
 import com.example.schoolsmart.data.TaskStatus
+import com.example.schoolsmart.data.TaskViewModel
 import com.example.schoolsmart.notifications.scheduleReminder
 import com.example.schoolsmart.notifications.sendNotification
+import com.example.schoolsmart.ui.screens.PhotosActivity
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -63,6 +69,8 @@ fun EditTaskDialog(
     onDelete:   () -> Unit
 ){
     val context = LocalContext.current
+    val viewModel: TaskViewModel = viewModel()
+
     val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     var categoryExpanded by remember { mutableStateOf(false) }
     var statusExpanded by remember { mutableStateOf(false) }
@@ -236,6 +244,20 @@ fun EditTaskDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                // Photos
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Add or show photos")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        val intent = Intent(context, PhotosActivity::class.java)
+                        intent.putExtra("TASK_ID", task.id)
+                        context.startActivity(intent)
+
+                    }){Text("Photos")}
+                }
+
                 // Links
                 Text("Links")
                 Row(
@@ -303,6 +325,17 @@ fun EditTaskDialog(
                         dueDate,
                     )
                 }
+
+                viewModel.updateTaskWithLatestPictures(
+                    taskId = task.id,
+                    title = title,
+                    description = description,
+                    dueDate = dueDate,
+                    category = TaskCategory.valueOf(selectedCategory.uppercase()),
+                    status = TaskStatus.valueOf(selectedStatus.replace(" ", "_").uppercase()),
+                    sms = smsEnabled,
+                    reminder = reminderEnabled
+                )
 
                 onConfirm()
 

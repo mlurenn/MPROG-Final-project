@@ -1,0 +1,158 @@
+package com.example.schoolsmart.ui.screens
+
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.example.schoolsmart.data.TaskDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.util.UUID
+import androidx.compose.foundation.lazy.grid.items
+
+class PhotosActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val taskId = intent.getStringExtra("TASK_ID") ?: return finish()
+
+        setContent {
+            PhotosScreen(taskId, onBack = { finish() })
+        }
+    }
+}
+
+@Composable
+fun PhotosScreen(taskID: String, onBack: () -> Unit){
+    val context = LocalContext.current
+    val database = TaskDatabase.getDatabase(context)
+    val scope = rememberCoroutineScope()
+
+    var imageList by remember { mutableStateOf(listOf<Bitmap>())}
+
+    LaunchedEffect(taskID) {
+        val task = database.taskDao().getTaskById(taskID)
+        val bitmaps = task.pictures.mapNotNull { path ->
+            val file = File(path)
+            if(file.exists()){
+                BitmapFactory.decodeFile(path)
+            } else {
+                null
+            }
+        }
+
+        imageList = bitmaps
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ){bitmap ->
+        bitmap?.let {
+
+            val path = savePhoto(context, it)
+
+            scope.launch(Dispatchers.IO) {
+                val task = database.taskDao().getTaskById(taskID)
+                val updatedImageList = task.pictures + path
+                val updatedTask = task.copy(pictures = updatedImageList)
+                database.taskDao().updateTask(updatedTask)
+            }
+
+            imageList = listOf(it) + imageList
+        }
+    }
+    Scaffold { padding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if(imageList.isEmpty()){
+                Text("Take a photo of your notes or the whiteboard!")
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                items(imageList) { bitmap ->
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "Photo",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(onClick = onBack) {Text("Back") }
+                Spacer(modifier = Modifier.width(20.dp))
+                Button(onClick = {
+                    cameraLauncher.launch()
+                }) {
+                    Text("Take Photo")
+                }
+            }
+        }
+    }
+}
+
+fun savePhoto(context: Context, photo: Bitmap): String{
+
+    val fileName = "task_photo_${UUID.randomUUID()}.png"
+    val file = File(context.filesDir, fileName)
+
+    val stream = FileOutputStream(file)
+    photo.compress(Bitmap.CompressFormat.PNG, 100, stream)
+
+    stream.flush()
+    stream.close()
+
+    return file.absolutePath
+}

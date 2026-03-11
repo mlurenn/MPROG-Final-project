@@ -45,4 +45,28 @@ class TaskViewModel(app: Application) : AndroidViewModel(app) {
             loadTasks()
         }
     }
+
+    fun updateTaskWithLatestPictures(
+        taskId: String,
+        title: String,
+        description: String,
+        dueDate: Long,
+        category: TaskCategory,
+        status: TaskStatus,
+        sms: Boolean,
+        reminder: Boolean
+    ) = viewModelScope.launch {
+        val task = dao.getTaskById(taskId)
+        val updatedTask = task.copy(
+            title = title,
+            description = description,
+            dueDate = dueDate,
+            category = category,
+            status = status,
+            smsEnabled = sms,
+            reminderEnabled = reminder,
+            pictures = task.pictures
+        )
+        dao.updateTask(updatedTask)
+    }
 }
