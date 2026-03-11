@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.schoolsmart.data.TaskCategory
+import com.example.schoolsmart.notifications.scheduleReminder
+import com.example.schoolsmart.notifications.sendNotification
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -47,7 +49,7 @@ fun AddTaskDialog(
     onSmsChange: (Boolean) -> Unit,
     onReminderChange: (Boolean) -> Unit,
 
-    onConfirm: () -> Unit,
+    onConfirm: () -> String,
     onDismiss: () -> Unit
 ){
     val context = LocalContext.current
@@ -175,7 +177,17 @@ fun AddTaskDialog(
                     Toast.makeText(context, "Title cannot be empty", Toast.LENGTH_SHORT).show()
                     return@TextButton
                 }
-                onConfirm()
+                val newTasksID = onConfirm()
+
+                if(reminderEnabled){
+                    scheduleReminder(
+                        context,
+                        newTasksID,
+                        title,
+                        dueDate
+                    )
+                }
+
             }) {
                 Text("Add")
             }

@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import com.example.schoolsmart.data.Task
 import com.example.schoolsmart.data.TaskCategory
 import com.example.schoolsmart.data.TaskStatus
+import com.example.schoolsmart.notifications.scheduleReminder
+import com.example.schoolsmart.notifications.sendNotification
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -292,7 +294,18 @@ fun EditTaskDialog(
                     Toast.makeText(context, "Title cannot be empty", Toast.LENGTH_SHORT).show()
                     return@TextButton
                 }
+
+                if(reminderEnabled){
+                    scheduleReminder(
+                        context,
+                        task.id,
+                        title,
+                        dueDate,
+                    )
+                }
+
                 onConfirm()
+
             }) {
                 Text("Done")
             }

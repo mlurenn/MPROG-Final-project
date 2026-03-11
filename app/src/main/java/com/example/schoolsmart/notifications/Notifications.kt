@@ -1,4 +1,4 @@
-package com.example.schoolsmart.ui.components
+package com.example.schoolsmart.notifications
 
 import android.Manifest
 import android.R
@@ -12,7 +12,12 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
+import java.util.concurrent.TimeUnit
 
 fun notificationSetup(activity: Activity){
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
@@ -35,6 +40,7 @@ fun notificationSetup(activity: Activity){
     }
 }
 
+// Checks permission and sends a notification
 fun sendNotification(context: Context, title: String, text: String){
 
     if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
@@ -53,4 +59,28 @@ fun sendNotification(context: Context, title: String, text: String){
             notify(1, builder.build())
         }
     }
+}
+
+// Schedules a reminder 1 day before the due date of a task
+fun scheduleReminder(context: Context, taskID: String, taskTitle: String, dueDate: Long){
+
+    val oneDaysTime = 24L * 60 * 60 * 1000
+    val reminderTime = dueDate - oneDaysTime
+    val delay = reminderTime - System.currentTimeMillis()
+
+    if(delay <= 0){
+        return
+    }
+
+    val data = workDataOf(
+        "title" to "Task Reminder",
+        "text"  to "$taskTitle is due tomorrow."
+    )
+
+    val work = OneTimeWorkRequestBuilder<ReminderWorker>()
+        .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+        .setInputData(data)
+        .build()
+
+    WorkManager.getInstance(context).enqueueUniqueWork(taskID, ExistingWorkPolicy.REPLACE, work)
 }

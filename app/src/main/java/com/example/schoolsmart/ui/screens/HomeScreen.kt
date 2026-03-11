@@ -1,7 +1,6 @@
 package com.example.schoolsmart.ui.screens
 
 import android.os.Bundle
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,8 +39,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsmart.data.TaskViewModel
 import java.util.UUID
 import com.example.schoolsmart.ui.components.TaskList
-import com.example.schoolsmart.ui.components.notificationSetup
-import com.example.schoolsmart.ui.components.sendNotification
+import com.example.schoolsmart.notifications.notificationSetup
+import com.example.schoolsmart.notifications.sendNotification
 import com.example.schoolsmart.ui.dialogs.AddTaskDialog
 import com.example.schoolsmart.ui.dialogs.EditTaskDialog
 
@@ -174,6 +173,8 @@ fun TasksScreen(){
                     )
                     viewModel.addTask(newTask)
 
+                    val newTasksID = newTask.id
+
                     title = ""
                     description = ""
                     dueDate = System.currentTimeMillis()
@@ -183,6 +184,8 @@ fun TasksScreen(){
                     showDialog = false
 
                     Toast.makeText(context, "Task added", Toast.LENGTH_SHORT).show()
+
+                    newTasksID
                 })
         }
 
