@@ -54,6 +54,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.unit.sp
 
 class PhotosActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,20 +73,20 @@ fun PhotosScreen(taskID: String, onBack: () -> Unit){
     val database = TaskDatabase.getDatabase(context)
     val scope = rememberCoroutineScope()
 
-    var imageList by remember { mutableStateOf(listOf<Bitmap>())}
+    var images by remember { mutableStateOf(listOf<Pair<Bitmap, String>>())}
 
     LaunchedEffect(taskID) {
         val task = database.taskDao().getTaskById(taskID)
         val bitmaps = task.pictures.mapNotNull { path ->
             val file = File(path)
-            if(file.exists()){
-                BitmapFactory.decodeFile(path)
-            } else {
-                null
-            }
+            val b =
+                if(file.exists())
+                    BitmapFactory.decodeFile(path)
+                else
+                    null
+            b?.let {it to path}
         }
-
-        imageList = bitmaps
+        images = bitmaps
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -102,7 +103,7 @@ fun PhotosScreen(taskID: String, onBack: () -> Unit){
                 database.taskDao().updateTask(updatedTask)
             }
 
-            imageList = listOf(it) + imageList
+            images = listOf(it to path) + images
         }
     }
     Scaffold { padding ->
@@ -111,9 +112,12 @@ fun PhotosScreen(taskID: String, onBack: () -> Unit){
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(imageList.isEmpty()){
-                Text("Take a photo of your notes or the whiteboard!")
-                Spacer(modifier = Modifier.height(20.dp))
+            if(images.isEmpty()){
+                Text(
+                    text = "Take a photo of your notes or the whiteboard!",
+                    fontSize = 20.sp
+                    )
+                Spacer(modifier = Modifier.height(18.dp))
             }
 
             // Display photos
@@ -125,7 +129,7 @@ fun PhotosScreen(taskID: String, onBack: () -> Unit){
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                itemsIndexed(imageList) { index, bitmap ->
+                itemsIndexed(images) { index, (bitmap, path) ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -144,17 +148,19 @@ fun PhotosScreen(taskID: String, onBack: () -> Unit){
                         // Delete button
                         IconButton(
                             onClick = {
-                                val updatedList = imageList.toMutableList()
-                                updatedList.removeAt(index)
-                                imageList = updatedList
+                                val file = File(path)
+                                if (file.exists()) file.delete()
 
                                 scope.launch(Dispatchers.IO) {
                                     val task = database.taskDao().getTaskById(taskID)
-                                    val updatedTask = task.copy(
-                                        pictures = task.pictures.filterIndexed { i, _ -> i != index }
-                                    )
+                                    val updatedTask =
+                                        task.copy(pictures = task.pictures.filter { it != path })
                                     database.taskDao().updateTask(updatedTask)
                                 }
+
+                                val updatedList = images.toMutableList()
+                                updatedList.removeAt(index)
+                                images = updatedList
                             },
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
