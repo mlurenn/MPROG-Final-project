@@ -129,11 +129,6 @@ fun TasksScreen(){
             horizontalArrangement = Arrangement.Center
         ) {
             Button(onClick = {showDialog = true}) { Text("Add Task") }
-
-            //TEST BUTTON
-            Button(onClick = {
-                sendNotification(context, "TEST", " Does this work?")
-            }) { Text("Notification")}
         }
 
         var isExpanded by remember { mutableStateOf(false) }
