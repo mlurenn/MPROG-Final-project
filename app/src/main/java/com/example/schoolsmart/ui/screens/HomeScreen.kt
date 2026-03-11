@@ -1,6 +1,7 @@
 package com.example.schoolsmart.ui.screens
 
 import android.os.Bundle
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -39,6 +40,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsmart.data.TaskViewModel
 import java.util.UUID
 import com.example.schoolsmart.ui.components.TaskList
+import com.example.schoolsmart.ui.components.notificationSetup
+import com.example.schoolsmart.ui.components.sendNotification
 import com.example.schoolsmart.ui.dialogs.AddTaskDialog
 import com.example.schoolsmart.ui.dialogs.EditTaskDialog
 
@@ -46,6 +49,9 @@ class HomeScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        notificationSetup(this)
+
         setContent {
             TasksScreen()
         }
@@ -124,6 +130,11 @@ fun TasksScreen(){
             horizontalArrangement = Arrangement.Center
         ) {
             Button(onClick = {showDialog = true}) { Text("Add Task") }
+
+            //TEST BUTTON
+            Button(onClick = {
+                sendNotification(context, "TEST", " Does this work?")
+            }) { Text("Notification")}
         }
 
         var isExpanded by remember { mutableStateOf(false) }
