@@ -1,6 +1,7 @@
 package com.example.schoolsmart.ui.screens
 
 import android.os.Bundle
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,9 +41,9 @@ import com.example.schoolsmart.data.TaskViewModel
 import java.util.UUID
 import com.example.schoolsmart.ui.components.TaskList
 import com.example.schoolsmart.notifications.notificationSetup
-import com.example.schoolsmart.notifications.sendNotification
 import com.example.schoolsmart.ui.dialogs.AddTaskDialog
 import com.example.schoolsmart.ui.dialogs.EditTaskDialog
+import com.example.schoolsmart.ui.dialogs.CalendarDialog
 
 class HomeScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,6 +73,8 @@ fun TasksScreen(){
     var currentFilter by remember { mutableStateOf("all") }
 
     var showDialog by remember { mutableStateOf(false) }
+    var showCalendar by remember { mutableStateOf(false) }
+
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var dueDate by remember { mutableStateOf(System.currentTimeMillis()) }
@@ -126,14 +129,13 @@ fun TasksScreen(){
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(onClick = {showDialog = true}) { Text("Add Task") }
+            Button(onClick = {showDialog    = true}) {Text("Add Task")}
+            Button(onClick = {showCalendar  = true}) {Text("Calendar")}
         }
 
-        var isExpanded by remember { mutableStateOf(false) }
         var selectedCategory by remember { mutableStateOf(TaskCategory.LECTURE) }
-
         var reminderEnabled by remember { mutableStateOf(false) }
 
         // Add Task Dialog
@@ -177,6 +179,13 @@ fun TasksScreen(){
 
                     newTasksID
                 })
+        }
+
+        if (showCalendar){
+            CalendarDialog(
+                tasks = tasks,
+                onDismiss = {showCalendar = false}
+            )
         }
 
         // Edit Task Dialog
