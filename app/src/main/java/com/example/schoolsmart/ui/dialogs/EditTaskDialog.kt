@@ -134,7 +134,7 @@ fun EditTaskDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Box {
                         Button(onClick = { categoryExpanded = true }) {
-                            Text(selectedCategory)
+                            Text(formatEnumText(selectedCategory))
                         }
 
                         DropdownMenu(
@@ -180,7 +180,7 @@ fun EditTaskDialog(
 
                     Box {
                         Button(onClick = { statusExpanded = true }) {
-                            Text(selectedStatus.replace("_", " "))
+                            Text(formatEnumText(selectedStatus))
                         }
 
                         DropdownMenu(
@@ -189,7 +189,7 @@ fun EditTaskDialog(
                         ) {
 
                             DropdownMenuItem(
-                                text = { Text("To-Do") },
+                                text = { Text("Todo") },
                                 onClick = {
                                     onStatusClick(TaskStatus.TODO)
                                     statusExpanded = false
@@ -349,4 +349,8 @@ fun openLink(context: Context, url: String){
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = Uri.parse(safeUrl)
     context.startActivity(intent)
+}
+
+fun formatEnumText(text: String): String {
+    return text.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }
 }

@@ -112,7 +112,7 @@ fun AddTaskDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Box {
                         Button(onClick = { isExpanded = true }) {
-                            Text(selectedCategory.toString())
+                            Text(formatEnumText(selectedCategory))
                         }
 
                         DropdownMenu(
