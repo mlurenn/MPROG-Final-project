@@ -1,7 +1,6 @@
 package com.example.schoolsmart.ui.screens
 
 import android.os.Bundle
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent

@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.schoolsmart.data.TaskCategory
 import com.example.schoolsmart.notifications.scheduleReminder
-import com.example.schoolsmart.notifications.sendNotification
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

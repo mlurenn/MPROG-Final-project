@@ -1,8 +1,6 @@
 package com.example.schoolsmart.ui.dialogs
 
-import android.icu.util.Calendar
 import android.widget.CalendarView
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,9 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.room.util.TableInfo
 import com.example.schoolsmart.data.Task
-import com.example.schoolsmart.data.TaskStatus
 
 @Composable
 fun CalendarDialog(
@@ -45,7 +41,7 @@ fun CalendarDialog(
         onDismissRequest = onDismiss,
         title = { Text("Select a date") },
         text = {
-            Column() {
+            Column{
                 AndroidView(
                     factory = { context ->
                         CalendarView(context).apply {
@@ -62,7 +58,7 @@ fun CalendarDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 if(selectedTasks.isNotEmpty()){
-                    Column(){
+                    Column{
                         Text(
                             text = "Tasks due this date:",
                             fontSize = 18.sp,

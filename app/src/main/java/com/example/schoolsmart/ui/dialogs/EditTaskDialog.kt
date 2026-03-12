@@ -2,7 +2,6 @@ package com.example.schoolsmart.ui.dialogs
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +37,7 @@ import com.example.schoolsmart.ui.screens.PhotosActivity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.core.net.toUri
 
 @Composable
 fun EditTaskDialog(
@@ -347,7 +347,7 @@ fun openLink(context: Context, url: String){
     }
 
     val intent = Intent(Intent.ACTION_VIEW)
-    intent.data = Uri.parse(safeUrl)
+    intent.data = safeUrl.toUri()
     context.startActivity(intent)
 }
 
