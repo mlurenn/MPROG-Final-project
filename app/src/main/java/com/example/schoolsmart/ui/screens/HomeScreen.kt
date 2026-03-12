@@ -241,11 +241,3 @@ fun addTask(
         pictures = emptyList()
     )
 }
-
-fun deleteTask(task: Task){
-
-}
-
-fun editTask(task: Task){
-
-}
