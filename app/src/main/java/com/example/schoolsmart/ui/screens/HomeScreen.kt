@@ -134,7 +134,6 @@ fun TasksScreen(){
         var isExpanded by remember { mutableStateOf(false) }
         var selectedCategory by remember { mutableStateOf(TaskCategory.LECTURE) }
 
-        var smsEnabled by remember { mutableStateOf(false) }
         var reminderEnabled by remember { mutableStateOf(false) }
 
         // Add Task Dialog
@@ -144,7 +143,6 @@ fun TasksScreen(){
                 description = description,
                 dueDate = dueDate,
                 selectedCategory = selectedCategory.toString(),
-                smsEnabled = smsEnabled,
                 reminderEnabled = reminderEnabled,
 
                 onTitleChange = { title = it },
@@ -152,7 +150,6 @@ fun TasksScreen(){
                 onDateChange = { dueDate = it },
                 onCategoryClick = { selectedCategory = it },
 
-                onSmsChange = { smsEnabled = it },
                 onReminderChange = { reminderEnabled = it },
 
                 onDismiss = { showDialog = false },
@@ -163,7 +160,6 @@ fun TasksScreen(){
                         desc = description,
                         dueDate = dueDate,
                         category = selectedCategory,
-                        smsEnabled = smsEnabled,
                         reminderEnabled = reminderEnabled,
                     )
                     viewModel.addTask(newTask)
@@ -174,7 +170,6 @@ fun TasksScreen(){
                     description = ""
                     dueDate = System.currentTimeMillis()
                     selectedCategory = TaskCategory.LECTURE
-                    smsEnabled = false
                     reminderEnabled = false
                     showDialog = false
 
@@ -193,14 +188,12 @@ fun TasksScreen(){
                 dueDate = editingTask!!.dueDate,
                 selectedCategory = editingTask!!.category.toString(),
                 selectedStatus = editingTask!!.status.toString(),
-                smsEnabled = editingTask!!.smsEnabled,
                 reminderEnabled = editingTask!!.reminderEnabled,
                 onTitleChange = { editingTask = editingTask!!.copy(title = it) },
                 onDescriptionChange = { editingTask = editingTask!!.copy(description = it) },
                 onDateChange = { editingTask = editingTask!!.copy(dueDate = it) },
                 onCategoryClick = { editingTask = editingTask!!.copy(category = it) },
                 onStatusClick = { editingTask = editingTask!!.copy(status = it) },
-                onSmsChange = { editingTask = editingTask!!.copy(smsEnabled = it) },
                 onReminderChange = { editingTask = editingTask!!.copy(reminderEnabled = it) },
                 onConfirm = {
                     viewModel.updateTask(editingTask!!)
@@ -225,7 +218,6 @@ fun addTask(
     desc: String,
     dueDate: Long,
     category: TaskCategory,
-    smsEnabled: Boolean,
     reminderEnabled: Boolean,
 ): Task {
     return Task(
@@ -235,7 +227,6 @@ fun addTask(
         dueDate = dueDate,
         status = TaskStatus.TODO,
         category = category,
-        smsEnabled = smsEnabled,
         reminderEnabled = reminderEnabled,
         links = emptyList(),
         pictures = emptyList()

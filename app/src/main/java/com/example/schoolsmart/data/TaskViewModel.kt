@@ -53,7 +53,6 @@ class TaskViewModel(app: Application) : AndroidViewModel(app) {
         dueDate: Long,
         category: TaskCategory,
         status: TaskStatus,
-        sms: Boolean,
         reminder: Boolean
     ) = viewModelScope.launch {
         val task = dao.getTaskById(taskId)
@@ -63,7 +62,6 @@ class TaskViewModel(app: Application) : AndroidViewModel(app) {
             dueDate = dueDate,
             category = category,
             status = status,
-            smsEnabled = sms,
             reminderEnabled = reminder,
             pictures = task.pictures
         )

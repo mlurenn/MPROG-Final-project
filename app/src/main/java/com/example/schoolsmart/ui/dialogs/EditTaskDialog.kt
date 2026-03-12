@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,13 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.schoolsmart.data.Task
 import com.example.schoolsmart.data.TaskCategory
-import com.example.schoolsmart.data.TaskDatabase
 import com.example.schoolsmart.data.TaskStatus
 import com.example.schoolsmart.data.TaskViewModel
 import com.example.schoolsmart.notifications.scheduleReminder
-import com.example.schoolsmart.notifications.sendNotification
 import com.example.schoolsmart.ui.screens.PhotosActivity
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -52,7 +48,6 @@ fun EditTaskDialog(
     dueDate: Long,
     selectedCategory: String,
     selectedStatus: String,
-    smsEnabled: Boolean,
     reminderEnabled: Boolean,
 
     onTitleChange: (String) -> Unit,
@@ -61,7 +56,6 @@ fun EditTaskDialog(
     onCategoryClick: (TaskCategory) -> Unit,
     onStatusClick: (TaskStatus) -> Unit,
 
-    onSmsChange: (Boolean) -> Unit,
     onReminderChange: (Boolean) -> Unit,
 
     onConfirm:  () -> Unit,
@@ -226,16 +220,6 @@ fun EditTaskDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
-                        checked = smsEnabled,
-                        onCheckedChange = onSmsChange
-                    )
-                    Text("Enable SMS reminder")
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
                         checked = reminderEnabled,
                         onCheckedChange = onReminderChange
                     )
@@ -333,7 +317,6 @@ fun EditTaskDialog(
                     dueDate = dueDate,
                     category = TaskCategory.valueOf(selectedCategory.uppercase()),
                     status = TaskStatus.valueOf(selectedStatus.replace(" ", "_").uppercase()),
-                    sms = smsEnabled,
                     reminder = reminderEnabled
                 )
 

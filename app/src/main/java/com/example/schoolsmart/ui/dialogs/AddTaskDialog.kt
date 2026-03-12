@@ -38,7 +38,6 @@ fun AddTaskDialog(
     description: String,
     dueDate: Long,
     selectedCategory: String,
-    smsEnabled: Boolean,
     reminderEnabled: Boolean,
 
     onTitleChange: (String) -> Unit,
@@ -46,7 +45,6 @@ fun AddTaskDialog(
     onDateChange: (Long) -> Unit,
     onCategoryClick: (TaskCategory) -> Unit,
 
-    onSmsChange: (Boolean) -> Unit,
     onReminderChange: (Boolean) -> Unit,
 
     onConfirm: () -> String,
@@ -147,16 +145,6 @@ fun AddTaskDialog(
                             )
                         }
                     }
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = smsEnabled,
-                        onCheckedChange = onSmsChange
-                    )
-                    Text("Enable SMS reminder")
                 }
 
                 Row(
