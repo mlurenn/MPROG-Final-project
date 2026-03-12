@@ -203,6 +203,7 @@ fun TasksScreen(){
                 onCategoryClick = { editingTask = editingTask!!.copy(category = it) },
                 onStatusClick = { editingTask = editingTask!!.copy(status = it) },
                 onReminderChange = { editingTask = editingTask!!.copy(reminderEnabled = it) },
+                onLinksChange = { editingTask = editingTask!!.copy(links = it) },
                 onConfirm = {
                     viewModel.updateTask(editingTask!!)
                     editingTask = null

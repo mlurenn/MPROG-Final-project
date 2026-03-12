@@ -2,6 +2,7 @@ package com.example.schoolsmart.ui.dialogs
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,7 +38,6 @@ import com.example.schoolsmart.ui.screens.PhotosActivity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.core.net.toUri
 
 @Composable
 fun EditTaskDialog(
@@ -55,8 +55,8 @@ fun EditTaskDialog(
     onDateChange: (Long) -> Unit,
     onCategoryClick: (TaskCategory) -> Unit,
     onStatusClick: (TaskStatus) -> Unit,
-
     onReminderChange: (Boolean) -> Unit,
+    onLinksChange: (List<String>) -> Unit,
 
     onConfirm:  () -> Unit,
     onDismiss:  () -> Unit,
@@ -258,7 +258,7 @@ fun EditTaskDialog(
                         val trimmedLink = newLink.trim()
                         if (trimmedLink.isNotEmpty() && !links.contains(trimmedLink)) {
                             links = links + trimmedLink
-                            task.links = links
+                            onLinksChange(links)
                             newLink = ""
                         }
                     }){Text("Add")}
@@ -266,7 +266,7 @@ fun EditTaskDialog(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                if(task.links.isNotEmpty()){
+                if(links.isNotEmpty()){
                     Column{
                         links.filter { it.isNotBlank() }
                             .forEach { link ->
@@ -282,7 +282,7 @@ fun EditTaskDialog(
                                     TextButton(
                                         onClick = {
                                             links = links - link
-                                            task.links = links
+                                            onLinksChange(links)
                                         }
                                     ) {
                                         Text("Remove")
@@ -317,7 +317,8 @@ fun EditTaskDialog(
                     dueDate = dueDate,
                     category = TaskCategory.valueOf(selectedCategory.uppercase()),
                     status = TaskStatus.valueOf(selectedStatus.replace(" ", "_").uppercase()),
-                    reminder = reminderEnabled
+                    reminder = reminderEnabled,
+                    links = links
                 )
 
                 onConfirm()
@@ -347,7 +348,7 @@ fun openLink(context: Context, url: String){
     }
 
     val intent = Intent(Intent.ACTION_VIEW)
-    intent.data = safeUrl.toUri()
+    intent.data = Uri.parse(safeUrl)
     context.startActivity(intent)
 }
 

@@ -53,7 +53,8 @@ class TaskViewModel(app: Application) : AndroidViewModel(app) {
         dueDate: Long,
         category: TaskCategory,
         status: TaskStatus,
-        reminder: Boolean
+        reminder: Boolean,
+        links: List<String>
     ) = viewModelScope.launch {
         val task = dao.getTaskById(taskId)
         val updatedTask = task.copy(
@@ -63,6 +64,7 @@ class TaskViewModel(app: Application) : AndroidViewModel(app) {
             category = category,
             status = status,
             reminderEnabled = reminder,
+            links = links,
             pictures = task.pictures
         )
         dao.updateTask(updatedTask)
